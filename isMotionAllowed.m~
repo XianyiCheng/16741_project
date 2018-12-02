@@ -6,7 +6,6 @@ function [bMA, final_finger_contacts] = isStableMotionAllowed(twist, object, env
 % X = object configuration to the world frame
 % external force,4xn in the world frame, act point, force direction*amplitute
 bMA = false;
-final_finger_contacts=[];
 
 env_p = env_contacts(1:2,:);
 env_n = env_contacts(3:4,:);
@@ -20,8 +19,8 @@ sticking_contacts = [];
 env_rp = reciprocalProduct2D(env_cw, twist);
 
 if sum(env_rp<0) > 0
-    %bMA = false;
-    %final_finger_contacts=[];
+    bMA = false;
+    final_finger_contacts=[];
     return
 end
     
@@ -77,24 +76,21 @@ env_contact_wrenches = contactScrew2D(friction_cone(env_p, env_n,mu));
 for i = 1:n_finger
     rest_finger_wrenches = finger_wrenches;
     rest_finger_wrenches(:, ((i-1)*2+1):i*2) = [];
-    [rbWC, ~] = isWrenchCompensate([rest_finger_wrenches,env_contact_wrenches], sum(external_wrenches,2));
-    if rbWC % sample for possible finger contacts 
-        for iter = 1:100
-            [sp, sn] = randomSampleContact(object, env); %TODO
-            s_wrenches = contactScrew2D(friction_cone(sp, sn,mu));
-            s_bWC = isWrenchCompensate([finger_wrenches,s_wrenches, sliding_wrenches, sticking_wrenches], sum(external_wrenches,2));
-            if s_bWC
-                bMA = true;
-                finger_contacts(i,:) = [sp;sn];
-                final_finger_contacts = finger_contacts;
-                return
-            end
+    [bWC, ~] = isWrenchCompensate([rest_finger_wrenches,env_contact_wrenches], sum(external_wrenches,2));
+    if bWC % sample for possible finger contacts 
+        [sp, sn] = randomSampleContact(object);
+        s_wrenches = contactScrew2D(friction_cone(sp, sn,mu));
+        s_bWC = isWrenchCompensate([finger_wrenches,s_wrenches, sliding_wrenches, sticking_wrenches], sum(external_wrenches,2));
+        if s_bWC
+            bMA = true;
+            finger_contacts(i,:) = [sp;sn];
+            final_finger_contacts = finger_contacts;
+            return
         end
     end
 end
 
-end
-    
+
 
     
 

@@ -24,7 +24,7 @@ for i = 1:maxIter
         break;
     end
     
-    Xrand = []; % TODO: sample from random state
+    Xrand = []; % TODO: sample from random state,50% from the goal state
     Xnear = T.nearestNeighbor(Xrand); %TODO: in RRT tree class
     Xnew = extend(Xrand, Xnear); % TODO
     [isXnewOk,Xnew_env_contacts] = CollisionDetection(env, object, Xnew);
@@ -32,7 +32,7 @@ for i = 1:maxIter
         continue;
     end
     
-    [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed() % TODO
+    [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed( ) % TODO
     
     if ~isXnewMotion
         continue;

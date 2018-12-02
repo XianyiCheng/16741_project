@@ -1,5 +1,5 @@
 function [bWC, zmax] = isWrenchCompensate(CW, w0)
-% CW: a set of normalized contact screws
+% CW: a set of normalized contact screws 3xn
 % w0: the wrench we want to provide, such as " -mg"
 
     w0 = w0./norm(w0(1:2),2);

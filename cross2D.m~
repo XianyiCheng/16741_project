@@ -1,0 +1,5 @@
+function cp2 = cross2D(CP, CN)
+% input: 2 x n
+% output:
+cp2 = CP(1,:).*CN(2,:) - CP(2,:).*CN(1,:);
+end
