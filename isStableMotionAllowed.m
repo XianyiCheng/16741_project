@@ -13,7 +13,7 @@ env_n = env_contacts(3:4,:);
 finger_p = finger_contacts(1:2,:);
 finger_n = finger_contacts(3:4,:);
 env_cw = contactScrew2D(env_p, env_n);
-finger_cw= contactScrew2D(finger_p, finger_n);
+
 sticking_contacts = [];
 
 % for every env contact, test their constraint to this motion
@@ -25,7 +25,6 @@ if sum(env_rp<0) > 0
     return
 end
     
-env_cw_active = env_cw(:, env_rp==0);
 env_active_p = env_p(:, env_rp==0);
 env_active_n = env_n(:, env_rp==0);
 

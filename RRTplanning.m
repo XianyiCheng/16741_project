@@ -33,7 +33,9 @@ function [T_, isfound] = RRTplanning(Xstart, Xgoal, env, object, maxIter, thr)
             continue;
         end
         
-        [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed( ) % TODO
+        [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed(Xnew-Xnear, ...
+            object,T.vertex(Xnear_ind).env_contacts,T.vertex(Xnear_ind).finger_contacts, Xnear, [Xnear(1:2);0;1]); 
+        % TODO
         
         if ~isXnewMotion
             continue;
