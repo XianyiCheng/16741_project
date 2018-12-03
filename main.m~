@@ -1,0 +1,21 @@
+% evn: set of points, draw straight lines to connect in order, 2 by ? matrix
+% object: set of points, the object is the convex hull of them, 2 by ? matrix
+env = [0,0;1000,0;1000,1000;0,1000]';
+object = [25,12;-25,12;-25,-12;25,-12]';
+config = [50,12,0]';
+maxIter = 1000;
+thr = 0.01;
+cf = 0.3;
+[T, isfound, path] = RRTplanning(config, pi/2, env, object, cf, maxIter, thr);
+figure
+hold on
+drawEnv(env);
+hold on;
+for i = numel(path)
+    config_i = T.vertex(path)
+drawObject(objFrame2worldFrame(object, config_i));
+drawContacts(contacts)
+
+axis equal
+xlim([-10,100])
+ylim([-10,100])

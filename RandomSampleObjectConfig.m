@@ -10,5 +10,5 @@ while true
         break
     end
 end
-Xrand = [rand_x; rand_y; rand(1)*2*pi];
+Xrand = [rand_x; rand_y; rand(1)*2*pi - pi];
 end

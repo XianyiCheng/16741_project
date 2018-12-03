@@ -34,7 +34,7 @@ classdef RRTtree < matlab.mixin.Copyable
                 % comparing both loc and angle
                 % assume size(X1) == size(X2)
                 %d = pdist([X1;X2],'euclidean');
-                d = norm(X1-X2);
+                d = norm(X1(3)-X2);
             elseif numel(X2) == 3
                 % comparing angles only
                 % only consider theta when measuring distance and comparing to goal

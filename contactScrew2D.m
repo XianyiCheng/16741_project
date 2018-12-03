@@ -3,6 +3,10 @@ function [CW] = contactScrew2D(CP, CN)
 % CN: a set of inward-pointing directions of contact normals  2xN matrix
 % CW: a set of normalized contact screws
 N = size(CP,2);
+if N == 0
+    CW=[];
+    return
+end
 
 CN = CN./vecnorm(CN,2,1);
 CW = zeros(3,N);

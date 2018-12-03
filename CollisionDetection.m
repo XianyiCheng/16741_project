@@ -62,6 +62,10 @@ function [bCD,contacts] = CollisionDetection(env, object, config)
             end
         end
     end
+
+if ~isempty(contacts)
+    bCD=0;
+end
     
     
     
