@@ -2,12 +2,16 @@
 % object: set of points, the object is the convex hull of them, 2 by ? matrix
 %%
 env = [0,0;1000,0;1000,1000;0,1000]';
-object = [25,12;-25,12;-25,-12;25,-12]';
-config = [26,12,0]';
-maxIter = 1000;
+%object = [25,12;-25,12;-25,-12;25,-12]';
+object = [12,12;-12,12;-12,-12;12,-12]';
+%config = [25,12,0]';
+a = 30*pi/180;
+config = [24*sin(a) + sqrt(2*12^2)*cos(a+pi/4),sqrt(2*12^2)*sin(a+pi/4), a]';
+goal = [12,12,0]';
+maxIter = 10000;
 thr = 0.01;
 cf = 0.3;
-[T, isfound, path] = RRTplanning(config, pi/2, env, object, cf, maxIter, thr);
+[T, isfound, path] = RRTplanning(config, goal, env, object, cf, maxIter, thr);
 %%
 figure
 hold on

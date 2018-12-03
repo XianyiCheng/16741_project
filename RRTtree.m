@@ -39,7 +39,7 @@ classdef RRTtree < matlab.mixin.Copyable
                 % comparing angles only
                 % only consider theta when measuring distance and comparing to goal
                 %d = pdist([X1(3);X2], 'euclidean');
-                d = norm(X1(3)-X2(3));
+                d = norm(X1-X2);
             end
         end
 

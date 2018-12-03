@@ -5,6 +5,7 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
     % maxIter: maximum iteration number
     % thr: the threshold allow for Xgoal
     %
+    sample_env = [0,0;100,0;100,100;0,100]';
     isfound = 0;
     end_ind = 0;
     goal_path = [];
@@ -20,12 +21,12 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
 
     for i = 1:maxIter
         
-        if mod(i,3) == 1
+        if mod(i,2) == 1
             Xrand = Xgoal;
-        elseif mod(i,3) == 2
-            Xrand = Xgoal-2*pi;
+        %elseif mod(i,3) == 2
+        %   Xrand = Xgoal-2*pi;
         else
-            Xrand = RandomSampleObjectConfig(env); % TODO: sample from random state,50% from the goal stat
+            Xrand = RandomSampleObjectConfig(sample_env); % TODO: sample from random state,50% from the goal stat
         end
         
         [Xnear_ind, ~] = T.nearestNeighbor(Xrand); 
@@ -57,12 +58,18 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
             break;
         end
     end
+    if i == maxIter
+        fprintf('max RRT iteration reached')
+    end
     if end_ind ~= 0
         % display states and fingers
         goal_path = T.get_path(end_ind);
         T_ = T;
+        fprintf('goal state motions found')
     else
         T_ = T;
+        [Xclosest_ind, ~] = T.nearestNeighbor(Xgoal);
+        goal_path = T.get_path(Xclosest_ind);
         fprintf('no state close enough to goal state\n');
     end
 end
