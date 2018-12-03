@@ -25,8 +25,8 @@ function [T_, isfound] = RRTplanning(Xstart, Xgoal, env, object, maxIter, thr)
             Xrand = RandomSampleObjectConfig(env); % TODO: sample from random state,50% from the goal stat
         end
         
-        [Xnear_ind, ~] = T.nearestNeighbor(T, Xrand); %TODO: in RRT tree class
-        Xnear = [T.vertex(Xnear_ind).x, T.vertex(Xnear_ind).y, T.vertex(Xnear_ind).theta]
+        [Xnear_ind, ~] = T.nearestNeighbor(Xrand); %TODO: in RRT tree class
+        Xnear = [T.vertex(Xnear_ind).x, T.vertex(Xnear_ind).y, T.vertex(Xnear_ind).theta];
         Xnew = extend(Xrand, Xnear); % TODO
         [isXnewOk,Xnew_env_contacts] = CollisionDetection(env, object, Xnew);
         if ~isXnewOk
@@ -40,8 +40,8 @@ function [T_, isfound] = RRTplanning(Xstart, Xgoal, env, object, maxIter, thr)
         end
         
         % combining adding vertex and edge
-        T = T.add_node(T, Xnear_ind, Xnew, Xnew_env_contacts, Xnew_finger_contacts);
-        [Xclosest_ind, cur_dist] = T.earestNeighbor(T, Xgoal)
+        T = T.add_node(Xnear_ind, Xnew, Xnew_env_contacts, Xnew_finger_contacts);
+        [Xclosest_ind, cur_dist] = T.nearestNeighbor(Xgoal);
         if cur_dist < thr % TODO: check if goal is reached
             isfound = 1;
             end_ind = Xclosest_ind;
@@ -50,8 +50,9 @@ function [T_, isfound] = RRTplanning(Xstart, Xgoal, env, object, maxIter, thr)
     end
     if end_ind ~= 0
         % display states and fingers
-        T.get_path(T, end_ind);
+        T.get_path(end_ind);
         T_ = T;
     else
         error('no state close enough to goal state');
+    end
 end
