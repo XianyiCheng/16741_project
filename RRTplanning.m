@@ -22,9 +22,14 @@ for i = 1:maxIter
     if 1% TODO: check if goal is reached
         isfound = 1;
         break;
+    end 
+    
+    if mod(i,2) == 0
+        Xrand = Xgoal;
+    else
+        Xrand = RandomSampleObjectConfig(env); % TODO: sample from random state,50% from the goal stat
     end
     
-    Xrand = []; % TODO: sample from random state,50% from the goal state
     Xnear = T.nearestNeighbor(Xrand); %TODO: in RRT tree class
     Xnew = extend(Xrand, Xnear); % TODO
     [isXnewOk,Xnew_env_contacts] = CollisionDetection(env, object, Xnew);

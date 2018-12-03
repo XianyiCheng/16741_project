@@ -23,14 +23,14 @@ classdef RRTtree < matlab.mixin.Copyable
             vertex(1).parent = -1;
         end
 
-        function obj = add_node(obj, Xnear_ind, Xnew, Xnew_env_contacts, Xnew_finger_contacts);
-            obj.vertex(obj.counter).x = Xstart(1);
-            obj.vertex(T.counter).y = Xstart(2);
-            obj.vertex(T.counter).theta = Xstart(3);
-            obj.vertex(T.counter).env_contacts = Xnew_env_contacts; 
-            obj.vertex(T.counter).finger_contacts = Xnew_finger_contacts; 
-            obj.vertex(T.counter).parent = Xnear_ind;
-            obj.counter += 1;
+        function obj = add_node(obj, Xnear_ind, Xnew, Xnew_env_contacts, Xnew_finger_contacts)
+            obj.vertex(obj.counter).x = Xnew(1);
+            obj.vertex(obj.counter).y = Xnew(2);
+            obj.vertex(obj.counter).theta = Xnew(3);
+            obj.vertex(obj.counter).env_contacts = Xnew_env_contacts; 
+            obj.vertex(obj.counter).finger_contacts = Xnew_finger_contacts; 
+            obj.vertex(obj.counter).parent = Xnear_ind;
+            obj.counter = obj.counter+ 1;
         end
         
         function d = treeDist(X1, X2)
