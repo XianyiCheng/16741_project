@@ -4,6 +4,7 @@ function [bCD,contacts] = CollisionDetection(env, object, config)
 % bCD: if collide, boolean. If object is in contact with env, bCD = 0
 % contacts: 4 x ? matrix. contact = [contact normal, contact location]' ,
 % if there is no contact, contacts = [];
+    err = 1e-3;
     X = objFrame2worldFrame(object, config);
     contacts = [];
     bCD = 0;
@@ -15,11 +16,11 @@ function [bCD,contacts] = CollisionDetection(env, object, config)
     
     for N1=1:size(lines_X,1)
         for N2=1:size(lines_env,1)
-            if out.intAdjacencyMatrix(N1, N2)
+             if out.intAdjacencyMatrix(N1, N2)
                 % let contact normal be (0,0) if two line segments are
                 % "crossing" each other
                 contact_point = [out.intMatrixX(N1,N2); out.intMatrixY(N1,N2)];
-                if out.intNormalizedDistance1To2(N1,N2) == 0
+                if abs(out.intNormalizedDistance1To2(N1,N2)) <= err
                     line = lines_env(N2,:);
                     if line(3) == line(1)
                         normal = [1; 0];
@@ -32,13 +33,13 @@ function [bCD,contacts] = CollisionDetection(env, object, config)
                             normal = normal/norm(normal);
                         end
                     end
-                    test_point = contact_point+normal/1000;
+                    test_point = contact_point+normal/100;
                     if ~inpolygon(test_point(1), test_point(2), env(1,:), env(2,:))
                         normal = -normal;
                     end
                     contacts = [contacts, [normal;contact_point]];
                 end
-                if out.intNormalizedDistance2To1(N1,N2) == 0
+                if abs(out.intNormalizedDistance2To1(N1,N2)) <= err
                     line = lines_X(N1,:);
                     if line(3) == line(1)
                         normal = [1; 0];
@@ -51,13 +52,13 @@ function [bCD,contacts] = CollisionDetection(env, object, config)
                             normal = normal/norm(normal);
                         end
                     end
-                    test_point = contact_point+normal/1000;
+                    test_point = contact_point+normal/100;
                     if ~inpolygon(test_point(1), test_point(2), env(1,:), env(2,:))
                         normal = -normal;
                     end
                     contacts = [contacts, [normal;contact_point]];
                 end
-                if out.intNormalizedDistance1To2(N1,N2) ~= 0 && out.intNormalizedDistance2To1(N1,N2) ~= 0
+                if abs(out.intNormalizedDistance1To2(N1,N2)) >= err && abs(out.intNormalizedDistance2To1(N1,N2)) >= err
                     bCD = 1;
                 end
             end

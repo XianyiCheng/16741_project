@@ -52,7 +52,7 @@ for i=1:size(contacts,2)
     contacts(1:2, i) = worldFrame2objFrame(contacts(1:2, i), config);
     contacts(3:4, i) = worldFrame2objFrame(contacts(3:4, i), config);
 end
-%%
+%
 % test case 3
 env = [0,0;1000,0;1000,1000;0,1000]';
 %object = [25,12;-25,12;-25,-12;25,-12]';
