@@ -21,6 +21,7 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
 
     for i = 1:maxIter
         
+        % randomly sample to maintain at least one contact constraint
         if mod(i,2) == 1
             Xrand = Xgoal;
         %elseif mod(i,3) == 2
@@ -31,10 +32,12 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
         
         [Xnear_ind, ~] = T.nearestNeighbor(Xrand); 
         Xnear = [T.vertex(Xnear_ind).x, T.vertex(Xnear_ind).y, T.vertex(Xnear_ind).theta]';
+        
+        % in extend, to maintain at least one env contact constraints
         if numel(Xrand) == 1
-            Xnew = extend([Xnear(1:2);Xrand], Xnear);
+            Xnew = extend([Xnear(1:2);Xrand], Xnear,T.vertex(Xnear_ind).env_contacts);
         else
-            Xnew = extend(Xrand, Xnear); 
+            Xnew = extend(Xrand, Xnear,T.vertex(Xnear_ind).env_contacts); 
         end
         [isXnewCollide,Xnew_env_contacts] = CollisionDetection(env, object, Xnew);
         if isXnewCollide
