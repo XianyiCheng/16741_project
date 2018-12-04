@@ -9,7 +9,7 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
     isfound = 0;
     end_ind = 0;
     goal_path = [];
-    [isStartCollide,start_contacts] = CollisionDetection(env, object, Xstart);
+    [isStartCollide,start_contacts] = CollisionDetectionV2(env, object, Xstart);
     if isStartCollide 
         error('start configuration collided!');
     end
@@ -39,7 +39,7 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
         else
             Xnew = extend(Xrand, Xnear,T.vertex(Xnear_ind).env_contacts); 
         end
-        [isXnewCollide,Xnew_env_contacts] = CollisionDetection(env, object, Xnew);
+        [isXnewCollide,Xnew_env_contacts] = CollisionDetectionV2(env, object, Xnew);
         if isXnewCollide
             continue;
         end

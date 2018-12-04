@@ -18,7 +18,7 @@ if norm(dX(1:2)) > tmax
 end
 
 if ~isempty(env_contacts)
-    fun = @(x)(dX(1)-x(1))^2 + (dX(2) - x(2))^2 + (dX(3)-X(3))^2;
+    fun = @(x)(dX(1)-x(1))^2 + (dX(2) - x(2))^2 + (dX(3)-x(3))^2;
     [cw] = contactScrew2D(env_contacts(3:4,:),env_contacts(1:2,:));
     ind_eq = randi([1,size(cw,2)]);
     A = cw;
@@ -27,8 +27,6 @@ if ~isempty(env_contacts)
     Aeq = cw(:,ind_eq);
     beq=0;
     dXc = fmincon(fun,dX,A',b,Aeq',beq);
-
-    dXc = dXc*(-rand(1)+0.5)*2;
 
     Xnew = Xnear + dXc;
 else

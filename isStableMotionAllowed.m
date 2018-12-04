@@ -9,23 +9,28 @@ bMA = false;
 final_finger_contacts=[];
 
 if ~isempty(env_contacts)
-env_p = env_contacts(3:4,:);
-env_n = env_contacts(1:2,:);
+    % convert contacts back to obj frame
+    for i=1:size(env_contacts,2)
+        env_contacts(1:2, i) = worldFrame2objFrame(env_contacts(1:2, i), X);
+        env_contacts(3:4, i) = worldFrame2objFrame(env_contacts(3:4, i), X);
+    end
+    env_p = env_contacts(3:4,:);
+    env_n = env_contacts(1:2,:);
 
-env_cw = contactScrew2D(env_p, env_n);
-env_rp = reciprocalProduct2D(env_cw, twist);
+    env_cw = contactScrew2D(env_p, env_n);
+    env_rp = reciprocalProduct2D(env_cw, twist);
  
-sticking_contacts = [];
+    sticking_contacts = [];
 
-% for every env contact, test their constraint to this motion
-if sum(env_rp<0) > 0
-    %bMA = false;
-    %final_finger_contacts=[];
-    return
-end
-    
-env_active_p = env_p(:, env_rp==0);
-env_active_n = env_n(:, env_rp==0);
+    % for every env contact, test their constraint to this motion
+    if sum(env_rp<0) > 0
+        %bMA = false;
+        %final_finger_contacts=[];
+        return
+    end
+
+    env_active_p = env_p(:, env_rp==0);
+    env_active_n = env_n(:, env_rp==0);
 
 %for every active env contact, compute the object velocity on this point
 % vp = v0 + w x p = v0 + [-wy, wx]
@@ -34,7 +39,8 @@ flag = -cross2D(env_active_n, env_active_vp);
 
 % if flag == 0, add to sticking contact
 sticking_contacts = [sticking_contacts,[env_active_p(:, flag == 0);env_active_n(:, flag == 0)]];
-sticking_wrenches = contactScrew2D(friction_cone(sticking_contacts(3:4,:), sticking_contacts(1:2,:),friction_coeff));
+[stick_cps,stick_cns] = friction_cone(sticking_contacts(3:4,:), sticking_contacts(1:2,:),friction_coeff);
+sticking_wrenches = contactScrew2D(stick_cps,stick_cns);
 % if flag > 0, contact providing sliding wrench on the left of its normal
 sliding_wrenches = [];
 left_slide = find(flag>0);

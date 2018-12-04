@@ -48,7 +48,7 @@ classdef RRTtree < matlab.mixin.Copyable
             closest_ind = -1;
             for i = 1:obj.counter-1
                 cur = obj.vertex(i); 
-                state = [cur.x, cur.y, cur.theta];
+                state = [cur.x, cur.y, cur.theta]';
                 this_dist = obj.treeDist(state, Xgoal);
                 if this_dist < cur_dist
                     cur_dist = this_dist;
