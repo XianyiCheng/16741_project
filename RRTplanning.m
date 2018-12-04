@@ -5,7 +5,7 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
     % maxIter: maximum iteration number
     % thr: the threshold allow for Xgoal
     %
-    sample_env = [0,0;100,0;100,100;0,100]';
+    sample_env = [0+12,0+12;20,0+12;20,20;0+12,20]';
     isfound = 0;
     end_ind = 0;
     goal_path = [];
@@ -18,16 +18,34 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
     end
     %Start to construct RTT tree
     T = RRTtree(Xstart, start_contacts, []);
+    % sample start configuration stable finger contacts
+    start_fingers = cell(10,1);
+    for finger_sample = 1:20
+        theta = Xstart(3);
+        R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+        start_contacts_o(1:2, :) = R'*start_contacts(1:2, :);
+        start_contacts_o(3:4, :) = R'*(start_contacts(3:4,:)- Xstart(1:2));
+        [fp1, fn1] = randomSampleContact(object, start_contacts_o);
+        [fp2, fn2] = randomSampleContact(object, start_contacts_o);
+        start_fingers{finger_sample} = [fn1,fn2;fp1,fp2];
+    end
+    %start_fingers{1} = [-1,0,12,0;1,0,-12,0]';
+    start_fingers{1} = [-1,0,12,0;0,-1,0,12]';
 
     for i = 1:maxIter
-        
-        % randomly sample to maintain at least one contact constraint
+        [Xclosest_ind, cur_dist] = T.nearestNeighbor(Xgoal);
+        if cur_dist < thr % TODO: check if goal is reached
+            isfound = 1;
+            end_ind = Xclosest_ind;
+            break;
+        end
+%         randomly sample to maintain at least one contact constraint
         if mod(i,2) == 1
             Xrand = Xgoal;
-        %elseif mod(i,3) == 2
-        %   Xrand = Xgoal-2*pi;
-        else
+        else %mod(i,2) ==2
             Xrand = RandomSampleObjectConfig(sample_env); % TODO: sample from random state,50% from the goal stat
+        %elseif mode(i,5) ==3
+        %    dx = sampleContactInvariantMotion(start_contacts)
         end
         
         [Xnear_ind, ~] = T.nearestNeighbor(Xrand); 
@@ -37,31 +55,65 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
         if numel(Xrand) == 1
             Xnew = extend([Xnear(1:2);Xrand], Xnear,T.vertex(Xnear_ind).env_contacts);
         else
-            Xnew = extend(Xrand, Xnear,T.vertex(Xnear_ind).env_contacts); 
+            Xnew = extend(Xrand, Xnear,T.vertex(Xnear_ind).env_contacts);
+            %Xnew_start = extend(Xrand, Xstart,T.vertex(1).env_contacts); 
         end
         [isXnewCollide,Xnew_env_contacts] = CollisionDetectionV2(env, object, Xnew);
-        if isXnewCollide
-            continue;
-        end
+        %[isXnewstartCollide,Xnewstart_env_contacts] = CollisionDetectionV2(env, object, Xnew_start);
         dx = Xnew-Xnear;
         twist = [dx(3),dx(1),dx(2)]';
-        [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed(twist, Xnew_env_contacts, ...
-            object,T.vertex(Xnear_ind).env_contacts,T.vertex(Xnear_ind).finger_contacts, Xnear, [Xnear(1:2);0;1], friction_coeff); 
-        % TODO
-        
-        if ~isXnewMotion
-            continue;
-        end
-        
-        % combining adding vertex and edge
-        T = T.add_node(Xnear_ind, Xnew, Xnew_env_contacts, Xnew_finger_contacts);
-        [Xclosest_ind, cur_dist] = T.nearestNeighbor(Xgoal);
-        if cur_dist < thr % TODO: check if goal is reached
-            isfound = 1;
-            end_ind = Xclosest_ind;
-            break;
-        end
+        if ~isXnewCollide && norm(twist)~=0
+            
+            if Xnear_ind==1
+               for k = 1:numel(start_fingers)
+                [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed(twist, Xnew_env_contacts, ...
+                    object,T.vertex(1).env_contacts,start_fingers{k}, Xstart, [Xstart(1:2);0;1], friction_coeff); 
+                if isXnewMotion
+                    T = T.add_node(1, Xnew, Xnew_env_contacts, Xnew_finger_contacts);
+                    break
+                end
+               end
+            else        
+                [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed(twist, Xnew_env_contacts, ...
+                    object,T.vertex(Xnear_ind).env_contacts,T.vertex(Xnear_ind).finger_contacts, Xnear, [Xnear(1:2);0;1], friction_coeff); 
+                if isXnewMotion
+                    T = T.add_node(Xnear_ind, Xnew, Xnew_env_contacts, Xnew_finger_contacts);
+                end
+            end
+        else % if Xnew collide, look at the start
+                Xnew_start = extend(Xrand, Xstart,T.vertex(1).env_contacts);
+                [isXnewstartCollide,Xnewstart_env_contacts] = CollisionDetectionV2(env, object, Xnew_start);
+                if ~isXnewstartCollide && norm(Xnew_start - Xstart)~=0
+                    dx = Xnew_start-Xstart;
+                    twist = [dx(3),dx(1),dx(2)]';
+                    for k = 1:20%numel(start_fingers)
+                        [fp1, fn1] = randomSampleContact(object, start_contacts_o);
+                        [fp2, fn2] = randomSampleContact(object, start_contacts_o);
+                        new_fingers = [fn1,fn2;fp1,fp2];
+                        [isXnewstartMotion, Xnewstart_finger_contacts] = isStableMotionAllowed(twist, Xnewstart_env_contacts, ...
+                            object,T.vertex(1).env_contacts,new_fingers , Xstart, [Xstart(1:2);0;1], friction_coeff); 
+                        if isXnewstartMotion
+                            T = T.add_node(1, Xnew_start, Xnewstart_env_contacts, Xnewstart_finger_contacts);
+                            break
+                        end
+                    end
+                end
+          end
     end
+
+%         if ~isXnewstartCollide
+%             dx = Xnew_start-Xstart;
+%             twist = [dx(3),dx(1),dx(2)]';
+%             for k = 1:numel(start_fingers)
+%                 [isXnewstartMotion, Xnewstart_finger_contacts] = isStableMotionAllowed(twist, Xnewstart_env_contacts, ...
+%                     object,T.vertex(1).env_contacts,start_fingers{k}, Xstart, [Xstart(1:2);0;1], friction_coeff); 
+%                 if isXnewstartMotion
+%                     T = T.add_node(1, Xnew_start, Xnewstart_env_contacts, Xnewstart_finger_contacts);
+%                     break
+%                 end
+%             end
+%         end     
+        % combining adding vertex and edge
     if i == maxIter
         fprintf('max RRT iteration reached')
     end

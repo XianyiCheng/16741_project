@@ -4,11 +4,14 @@
 env = [0,0;1000,0;1000,1000;0,1000]';
 %object = [25,12;-25,12;-25,-12;25,-12]';
 object = [12,12;-12,12;-12,-12;12,-12]';
-config = [25,12,0]';
-a = 30*pi/180;
-goal= [24*sin(a) + sqrt(2*12^2)*cos(a+pi/4),sqrt(2*12^2)*sin(a+pi/4), a]';
+%config = [12,12,0]';
+%a = 30*pi/180;
+%goal= [24*sin(a) + sqrt(2*12^2)*cos(a+pi/4),sqrt(2*12^2)*sin(a+pi/4), a]';
 %config = [15,12,0]';
 %goal = [12,12,0]';
+config = [12*sqrt(2),12*sqrt(2),pi/4]';
+goal = [15,12,0]';
+%goal = 0.01*[25,12,pi/4*100]';
 maxIter = 1000;
 thr = 0.01;
 cf = 0.3;
@@ -21,7 +24,13 @@ hold on;
 for i = 1:numel(path)
     node = T.vertex(path(i));
     config_i = [node.x, node.y, node.theta]';
-    drawObject(objFrame2worldFrame(object, config_i));
+    if i == 1
+    drawObject(objFrame2worldFrame(object, config_i), 'm');
+    elseif i == numel(path)
+        drawObject(objFrame2worldFrame(object, config_i), 'g');
+    else
+        drawObject(objFrame2worldFrame(object, config_i));
+    end
     hold on;
     finger_contacts = node.finger_contacts;
     
@@ -31,6 +40,7 @@ for i = 1:numel(path)
     finger_contacts(3:4, j) = objFrame2worldFrame(finger_contacts(3:4, j), config_i);
     end
     drawContacts(finger_contacts);
+    drawContacts(T.vertex(i).env_contacts);
     hold on;
 end
 

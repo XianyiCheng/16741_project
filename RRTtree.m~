@@ -22,16 +22,8 @@ classdef RRTtree < matlab.mixin.Copyable
         function obj = add_node(obj, Xnear_ind, Xnew, Xnew_env_contacts, Xnew_finger_contacts)
             obj.vertex(obj.counter).x = Xnew(1);
             obj.vertex(obj.counter).y = Xnew(2);
-            if Xnew(3)> 2*pi || Xnew(3) < -pi
-                obj.vertex(obj.counter).theta= wrapTo2Pi(Xnew(3)) - pi;
-            elseif Xnew(3) > pi
-                obj.vertex(obj.counter).theta = Xnew(3)-2*pi;
-            elseif Xnew(3) < -pi
-                obj.vertex(obj.counter).theta = 2*pi -Xnew(3);
-            else
-                obj.vertex(obj.counter).theta = Xnew(3);
-            end
-                
+            if Xnew(2)> 2*pi || Xnew(2) < 2*pi
+            obj.vertex(obj.counter).theta = Xnew(3);
             obj.vertex(obj.counter).env_contacts = Xnew_env_contacts; 
             obj.vertex(obj.counter).finger_contacts = Xnew_finger_contacts; 
             obj.vertex(obj.counter).parent = Xnear_ind;

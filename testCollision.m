@@ -66,3 +66,14 @@ drawEnv(env);
 drawObject(objFrame2worldFrame(object, config));
 [bCD, contacts] = CollisionDetectionV2(env, object, config);
 drawContacts(contacts)
+%%
+config = [20,16.9705627484771,0.610400000000000]';
+env = [0,0;1000,0;1000,1000;0,1000]';
+%object = [25,12;-25,12;-25,-12;25,-12]';
+object = [12,12;-12,12;-12,-12;12,-12]';
+figure
+hold on
+drawEnv(env);
+drawObject(objFrame2worldFrame(object, config));
+[bCD, contacts] = CollisionDetectionV2(env, object, config);
+drawContacts(contacts)

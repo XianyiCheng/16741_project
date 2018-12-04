@@ -1,5 +1,5 @@
 function Xnew = extend(Xrand, Xnear, env_contacts)
-tmax = 10;
+tmax = 5;
 amax = 0.0872; % max angle change: 5 degrees
 if Xnear(3) > pi
     Xnear(3) = -2*pi + Xnear(3);
@@ -16,21 +16,51 @@ end
 if norm(dX(1:2)) > tmax
     dX(1:2) = tmax*dX(1:2)/norm(dX(1:2));
 end
+dx = dX;
 
-if ~isempty(env_contacts)
-    fun = @(x)(dX(1)-x(1))^2 + (dX(2) - x(2))^2 + (dX(3)-x(3))^2;
-    [cw] = contactScrew2D(env_contacts(3:4,:),env_contacts(1:2,:));
-    ind_eq = randi([1,size(cw,2)]);
-    A = cw;
-    A(:,ind_eq)=[];
-    b = zeros(size(cw,2)-1,1);
-    Aeq = cw(:,ind_eq);
-    beq=0;
-    dXc = fmincon(fun,dX,A',b,Aeq',beq);
+if size(env_contacts,2)~=0
+    % convert contacts back to obj frame
+theta = Xnear(3);
+R = [cos(theta) -sin(theta); sin(theta) cos(theta)];
 
-    Xnew = Xnear + dXc;
+env_contacts(1:2, :) = R'*env_contacts(1:2, :);
+env_contacts(3:4, :) = R'*(env_contacts(3:4,:)- X(1:2));
+    
+i = randi([1,size(env_contacts,2)]);
+[cw] = contactScrew2D(env_contacts(3:4,1:i),env_contacts(1:2,1:i));
+dx_basis = null(cw');
+if i < size(env_contacts,2)
+    cwgeq = contactScrew2D(env_contacts(3:4,i+1:end),env_contacts(1:2,i+1:end));
+    while 1
+        c = randn(1,size(dx_basis,2));
+        dx = sum(dx_basis.*[c;c;c],2);
+        if sum(cwgeq'*dx < 0) == 0
+            break
+        end
+    end
+        
 else
-    Xnew = Xnear + dX;
+    c = randn(1,size(dx_basis,2));
+    dx = sum(dx_basis.*[c;c;c],2);
+end
+dx = [dx(2:3);dx(1)];
+end
+% if ~isempty(env_contacts)
+%     %fun = @(x)(dX(1)-x(1))^2 + (dX(2) - x(2))^2 + (dX(3)-x(3))^2;
+%     fun = @(x)(dX(3)-x(3))^2;
+%     [cw] = contactScrew2D(env_contacts(3:4,:),env_contacts(1:2,:));
+%     ind_eq = randi([1,size(cw,2)]);
+%     A = cw;
+%     A(:,ind_eq)=[];
+%     b = zeros(size(cw,2)-1,1);
+%     Aeq = cw(:,ind_eq);
+%     beq=0;
+%     dXc = fmincon(fun,dX,A',b,Aeq',beq);
+% 
+%     Xnew = Xnear + dXc;
+% else
+%    Xnew = Xnear + dX;
+Xnew = Xnear + dx;
 
 end
     
