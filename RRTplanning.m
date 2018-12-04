@@ -1,14 +1,16 @@
-function [T_, isfound] = RRTplanning(Xstart, Xgoal, env, object, maxIter, thr)
+function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, friction_coeff, maxIter, thr)
     % T: tree of RTT planning
     % Xstart: start configuration of object, [x,y,theta]
     % Xgoal: goal configuration of object, only [theta]
     % maxIter: maximum iteration number
     % thr: the threshold allow for Xgoal
     %
+    sample_env = [0,0;100,0;100,100;0,100]';
     isfound = 0;
     end_ind = 0;
-    [isStartOk,start_contacts] = CollisionDetection(env, object, Xstart);
-    if ~isStartOk 
+    goal_path = [];
+    [isStartCollide,start_contacts] = CollisionDetection(env, object, Xstart);
+    if isStartCollide 
         error('start configuration collided!');
     end
     if isempty(start_contacts)
@@ -19,22 +21,28 @@ function [T_, isfound] = RRTplanning(Xstart, Xgoal, env, object, maxIter, thr)
 
     for i = 1:maxIter
         
-        if mod(i,2) == 0
+        if mod(i,2) == 1
             Xrand = Xgoal;
+        %elseif mod(i,3) == 2
+        %   Xrand = Xgoal-2*pi;
         else
-            Xrand = RandomSampleObjectConfig(env); % TODO: sample from random state,50% from the goal stat
+            Xrand = RandomSampleObjectConfig(sample_env); % TODO: sample from random state,50% from the goal stat
         end
         
-        [Xnear_ind, ~] = T.nearestNeighbor(Xrand); %TODO: in RRT tree class
-        Xnear = [T.vertex(Xnear_ind).x, T.vertex(Xnear_ind).y, T.vertex(Xnear_ind).theta];
-        Xnew = extend(Xrand, Xnear); % TODO
-        [isXnewOk,Xnew_env_contacts] = CollisionDetection(env, object, Xnew);
-        if ~isXnewOk
+        [Xnear_ind, ~] = T.nearestNeighbor(Xrand); 
+        Xnear = [T.vertex(Xnear_ind).x, T.vertex(Xnear_ind).y, T.vertex(Xnear_ind).theta]';
+        if numel(Xrand) == 1
+            Xnew = extend([Xnear(1:2);Xrand], Xnear);
+        else
+            Xnew = extend(Xrand, Xnear); 
+        end
+        [isXnewCollide,Xnew_env_contacts] = CollisionDetection(env, object, Xnew);
+        if isXnewCollide
             continue;
         end
         
         [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed(Xnew-Xnear, ...
-            object,T.vertex(Xnear_ind).env_contacts,T.vertex(Xnear_ind).finger_contacts, Xnear, [Xnear(1:2);0;1]); 
+            object,T.vertex(Xnear_ind).env_contacts,T.vertex(Xnear_ind).finger_contacts, Xnear, [Xnear(1:2);0;1], friction_coeff); 
         % TODO
         
         if ~isXnewMotion
@@ -50,11 +58,18 @@ function [T_, isfound] = RRTplanning(Xstart, Xgoal, env, object, maxIter, thr)
             break;
         end
     end
+    if i == maxIter
+        fprintf('max RRT iteration reached')
+    end
     if end_ind ~= 0
         % display states and fingers
-        T.get_path(end_ind);
+        goal_path = T.get_path(end_ind);
         T_ = T;
+        fprintf('goal state motions found')
     else
-        error('no state close enough to goal state');
+        T_ = T;
+        [Xclosest_ind, ~] = T.nearestNeighbor(Xgoal);
+        goal_path = T.get_path(Xclosest_ind);
+        fprintf('no state close enough to goal state\n');
     end
 end

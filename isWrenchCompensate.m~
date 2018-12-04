@@ -6,7 +6,7 @@ function [bWC, zmax] = isWrenchCompensate(CW, w0)
     
     N = size(CW,2);
     Wc = sum(CW,2)/N;
-    TW = Wc;%w0-Wc;
+    TW = w0-Wc;
     T= CW - Wc;
 
     [y,fval] = linprog(-TW,T',ones(N,1));
