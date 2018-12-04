@@ -51,6 +51,7 @@ function [bCD,contacts] = CollisionDetection(env, object, config)
                             normal = normal/norm(normal);
                         end
                     end
+                    test_point = contact_point+normal/1000;
                     if ~inpolygon(test_point(1), test_point(2), env(1,:), env(2,:))
                         normal = -normal;
                     end
