@@ -37,9 +37,9 @@ end
 env = [0,0;1000,0;1000,1000;0,1000]';
 %object = [25,12;-25,12;-25,-12;25,-12]';
 object = [12,12;-12,12;-12,-12;12,-12]';
-config = [12,12,0]';
-%a = 30*pi/180;
-%config = [24*sin(a) + sqrt(2*12^2)*cos(a+pi/4),sqrt(2*12^2)*sin(a+pi/4), a]';
+
+a = 30*pi/180;
+config = [24*sin(a) + sqrt(2*12^2)*cos(a+pi/4),sqrt(2*12^2)*sin(a+pi/4), a]';
 figure
 hold on
 drawEnv(env);
@@ -52,3 +52,17 @@ for i=1:size(contacts,2)
     contacts(1:2, i) = worldFrame2objFrame(contacts(1:2, i), config);
     contacts(3:4, i) = worldFrame2objFrame(contacts(3:4, i), config);
 end
+%%
+% test case 3
+env = [0,0;1000,0;1000,1000;0,1000]';
+%object = [25,12;-25,12;-25,-12;25,-12]';
+object = [12,12;-12,12;-12,-12;12,-12]';
+config = [12,12,3e-9]';
+%a = 30*pi/180;
+%config = [24*sin(a) + sqrt(2*12^2)*cos(a+pi/4),sqrt(2*12^2)*sin(a+pi/4), a]';
+figure
+hold on
+drawEnv(env);
+drawObject(objFrame2worldFrame(object, config));
+[bCD, contacts] = CollisionDetectionV2(env, object, config);
+drawContacts(contacts)

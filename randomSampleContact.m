@@ -13,7 +13,7 @@ while 1
     lineseg = [object(:,i),object(:,i+1)];
     r =rand(1);
     p = r*lineseg(:,1) + (1-r)*lineseg(:,2);
-    if ~isempty(env_p) && inpolygon(p(1), p(2), [env_p(1,:),0],[env_p(2,:),0] )
+    if ~isempty(env_p) && inpolygon(p(1), p(2), [env_p(3,:),0],[env_p(4,:),0] )
         continue;
     else
         k = lineseg(:,2) - lineseg(:,1);

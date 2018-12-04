@@ -43,8 +43,9 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
         if isXnewCollide
             continue;
         end
-        
-        [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed(Xnew-Xnear, ...
+        dx = Xnew-Xnear;
+        twist = [dx(3),dx(1),dx(2)]';
+        [isXnewMotion, Xnew_finger_contacts] = isStableMotionAllowed(twist, Xnew_env_contacts, ...
             object,T.vertex(Xnear_ind).env_contacts,T.vertex(Xnear_ind).finger_contacts, Xnear, [Xnear(1:2);0;1], friction_coeff); 
         % TODO
         

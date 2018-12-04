@@ -15,6 +15,8 @@ if ~isempty(env_contacts_w)
 
     env_contacts(1:2, :) = R'*env_contacts_w(1:2, :);
     env_contacts(3:4, :) = R'*(env_contacts_w(3:4,:)- X(1:2));
+    new_env_contacts(1:2, :) = R'*Xnew_env_contacts(1:2, :);
+    new_env_contacts(3:4, :) = R'*(Xnew_env_contacts(3:4,:)- X(1:2));
 
     env_p_w = env_contacts_w(3:4,:);
     env_n_w = env_contacts_w(1:2,:);
@@ -89,34 +91,16 @@ if ~isempty(finger_contacts)
     finger_n = finger_contacts(1:2,:);
     [fps,fns]=friction_cone(finger_p, finger_n,friction_coeff);
     finger_wrenches = contactScrew2D(fps,fns);
-    bF = true;
-    if ~isempty(Xnew_env_contacts)
-        new_env_contacts(1:2, :) = R'*Xnew_env_contacts(1:2, :);
-        new_env_contacts(3:4, :) = R'*(Xnew_env_contacts(3:4,:)- X(1:2));
-        for f = 1:size(finger_p,2)
-            if inpolygon(finger_p(1), finger_p(2), [new_env_contacts(3,:),0],[new_env_contacts(4,:),0] )
-            bF = false;
-            end
-        end
-    end
-        
     CW = [finger_wrenches, sliding_wrenches, sticking_wrenches];
     [bWC_pre, ~] = isWrenchCompensate(CW, sum(external_wrenches,2));
     [bWC_pos, ~] = isWrenchCompensate(CW, sum(external_wrenches_pos,2));
-    bWC = bWC_pre & bWC_pos & bF;
+    bWC = bWC_pre & bWC_pos;
 else
     % the start configuration
     for finger_sample = 1:100
         [fp1, fn1] = randomSampleContact(object, env_contacts);
         [fp2, fn2] = randomSampleContact(object, env_contacts);
-        if ~isempty(Xnew_env_contacts)
-            new_env_contacts(1:2, :) = R'*Xnew_env_contacts(1:2, :);
-            new_env_contacts(3:4, :) = R'*(Xnew_env_contacts(3:4,:)- X(1:2));
-            if inpolygon(fp1(1), fp1(2), [new_env_contacts(3,:),0],[new_env_contacts(4,:),0] ) ||...
-                    inpolygon(fp2(1), fp2(2), [new_env_contacts(3,:),0],[new_env_contacts(4,:),0] )
-                continue
-            end
-        end
+        if inpolygon(fp1(1), fp1(2), [new_env_contacts(3,:),0],[new_env_contacts(4,:),0] )
         [fps, fns] = friction_cone([fp1,fp2], [fn1,fn2],friction_coeff);
         finger_wrenches = contactScrew2D(fps,fns);
         CW = [finger_wrenches, sliding_wrenches, sticking_wrenches];
@@ -150,13 +134,12 @@ for i = 1:n_finger
     [rbWC, ~] = isWrenchCompensate([rest_finger_wrenches,env_contact_wrenches], sum(external_wrenches,2));
     if rbWC % sample for possible finger contacts 
         for iter = 1:100
-            [sp, sn] = randomSampleContact(object, env_contacts); %TODO
-            [sps, sns]=friction_cone(sp, sn,friction_coeff);
-            s_wrenches = contactScrew2D(sps, sns);
+            [sp, sn] = randomSampleContact(object, env); %TODO
+            s_wrenches = contactScrew2D(friction_cone(sp, sn,friction_coeff));
             s_bWC = isWrenchCompensate([finger_wrenches,s_wrenches, sliding_wrenches, sticking_wrenches], sum(external_wrenches,2));
             if s_bWC
                 bMA = true;
-                finger_contacts(:,i) = [sn;sp];
+                finger_contacts(i,:) = [sp;sn];
                 final_finger_contacts = finger_contacts;
                 return
             end
