@@ -83,12 +83,13 @@ end
 % else
 %    Xnew = Xnear + dX;
 Xnew = Xnear + dx;
+
 [cw] = contactScrew2D(env_contacts(3:4,:),env_contacts(1:2,:));
 dx_basis = null(cw');
 if numel(dx_basis) ==0
     Xnew = Xnear + 0;
 else
-    dx = dx_basis;
+    dx = sum(dx_basis,2);
     dx = [R*dx(1:2); dx(3)];
     Xnew = Xnear + dx*sign(dx(3))*angle_sign;
 end
