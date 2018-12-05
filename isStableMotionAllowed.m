@@ -33,14 +33,14 @@ if ~isempty(env_contacts_w)
     if sum(env_rp<-1e-4) > 0
         %bMA = false;
         %final_finger_contacts=[];
-        return
+        %return
     end
 
-    env_active_p_w = env_p_w(:, abs(env_rp)<1e-4);
-    env_active_n_w = env_n_w(:, abs(env_rp)<1e-4);
+    env_active_p_w = env_p_w;%(:, abs(env_rp)<1e-4);
+    env_active_n_w = env_n_w;%(:, abs(env_rp)<1e-4);
     
-    env_active_p = env_p(:, abs(env_rp)<1e-4);
-    env_active_n = env_n(:, abs(env_rp)<1e-4);
+    env_active_p = env_p;%(:, abs(env_rp)<1e-4);
+    env_active_n = env_n;%(:, abs(env_rp)<1e-4);
 
 %for every active env contact, compute the object velocity on this point
 % vp = v0 + w x p = v0 + [-wy, wx]

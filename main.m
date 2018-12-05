@@ -10,11 +10,11 @@ object = [12,12;-12,12;-12,-12;12,-12]';
 %config = [15,12,0]';
 %goal = [12,12,0]';
 config = [12*sqrt(2),12*sqrt(2),pi/4]';
-goal = [15,12,0]';
+goal = [12,12,0]';
 %goal = 0.01*[25,12,pi/4*100]';
 maxIter = 1000;
-thr = 0.01;
-cf = 0.3;
+thr = 0.1;
+cf = 0.5;
 [T, isfound, path] = RRTplanning(config, goal, env, object, cf, maxIter, thr);
 %%
 figure
@@ -40,7 +40,7 @@ for i = 1:numel(path)
     finger_contacts(3:4, j) = objFrame2worldFrame(finger_contacts(3:4, j), config_i);
     end
     drawContacts(finger_contacts);
-    drawContacts(T.vertex(i).env_contacts);
+    %drawContacts(T.vertex(i).env_contacts);
     hold on;
 end
 

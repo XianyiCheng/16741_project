@@ -31,7 +31,6 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
     end
     %start_fingers{1} = [-1,0,12,0;1,0,-12,0]';
     start_fingers{1} = [-1,0,12,0;0,-1,0,12]';
-    start_fingers{2} = [0,1,12,-12;0,-1,0,12]';
 
     for i = 1:maxIter
         [Xclosest_ind, cur_dist] = T.nearestNeighbor(Xgoal);
@@ -56,7 +55,7 @@ function [T_   , isfound, goal_path] = RRTplanning(Xstart, Xgoal, env, object, f
         %Xnew = extend(Xrand, Xnear,T.vertex(Xnear_ind).env_contacts);
             %Xnew_start = extend(Xrand, Xstart,T.vertex(1).env_contacts); 
         %end
-        Xnew_set = enumerateContactModeMotion2(Xrand, Xnear, env,T.vertex(Xnear_ind).env_contacts);
+        Xnew_set = enumerateContactModeMotion(Xrand, Xnear, T.vertex(Xnear_ind).env_contacts);
         for xnew_ind = 1:numel(Xnew_set)
             Xnew = Xnew_set{xnew_ind};
             [isXnewCollide,Xnew_env_contacts] = CollisionDetectionV2(env, object, Xnew);
