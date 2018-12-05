@@ -29,7 +29,7 @@ env_contacts(3:4, :) = R'*(env_contacts(3:4,:)- Xnear(1:2));
 
 N = size(env_contacts,2);
 
-for i = N:N
+for i = 1:N
     cwset = nchoosek([1:N],i);
     for k = 1:size(cwset,1)
         cwset_i = cwset(k,:);

@@ -14,7 +14,7 @@ goal = [12,12,0]';
 %goal = 0.01*[25,12,pi/4*100]';
 maxIter = 1000;
 thr = 0.1;
-cf = 0.5;
+cf = 1;
 [T, isfound, path] = RRTplanning(config, goal, env, object, cf, maxIter, thr);
 %%
 figure
