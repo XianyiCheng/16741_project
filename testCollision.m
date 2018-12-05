@@ -68,6 +68,7 @@ drawObject(objFrame2worldFrame(object, config));
 drawContacts(contacts)
 %%
 config = [20,16.9705627484771,0.610400000000000]';
+config = [16.9706, 16.9706, 0.6982]';
 env = [0,0;1000,0;1000,1000;0,1000]';
 %object = [25,12;-25,12;-25,-12;25,-12]';
 object = [12,12;-12,12;-12,-12;12,-12]';

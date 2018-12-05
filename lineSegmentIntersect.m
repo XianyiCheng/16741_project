@@ -34,6 +34,7 @@ u_b = numerator_b ./ denominator;
 INT_X = X1+X2_X1.*u_a;
 INT_Y = Y1+Y2_Y1.*u_a;
 % INT_B = (u_a >= 0) & (u_a <= 1) & (u_b >= 0) & (u_b <= 1);
+err = abs(err*denominator.^(-1));
 INT_B = (u_a >= 0-err) & (u_a <= 1+err) & (u_b >= 0-err) & (u_b <= 1+err);
 PAR_B = denominator == 0;
 COINC_B = (numerator_a == 0 & numerator_b == 0 & PAR_B);
